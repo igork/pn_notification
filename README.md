@@ -1,3 +1,3 @@
 # pn_notification
-pubnub notifications exchange server&lt;->android<br/>
-project wiki https://github.com/igork/pn_notification/wiki
+Android push/pull notification using PubNub service<br />
+Project wiki https://github.com/igork/pn_notification/wiki
