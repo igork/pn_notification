@@ -1,10 +1,13 @@
 package com.pubnub.mypubnup;
 
+import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
+import com.google.gson.JsonElement;
 import com.pubnub.api.PNConfiguration;
 import com.pubnub.api.PubNub;
 import com.google.gson.JsonObject;
@@ -16,6 +19,8 @@ import com.pubnub.api.models.consumer.PNStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -31,6 +36,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //
+        String json = getSettings(getApplicationContext());
+        System.out.println(json);
+
 
         //init
         PNConfiguration pnConfiguration = new PNConfiguration();
@@ -72,12 +82,62 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+    public static String getSettings(Context context){
 
+        String json;
+
+        try {
+                InputStream is = context.getAssets().open("pn_services.json");
+                int size = is.available();
+                byte[] buffer = new byte[size];
+                is.read(buffer);
+                is.close();
+                json = new String(buffer, "UTF-8");
+        } catch (IOException ex) {
+                ex.printStackTrace();
+                return null;
+        }
+
+        //Log.e("data", json);
+        return json;
+
+    }
+
+    class otherPNSubscribeCallback extends PNSubscribeCallback{
+
+        public otherPNSubscribeCallback(String channel, AppCompatActivity activity){
+            super(channel,activity);
+        }
+        @Override
+        public void showToast(final JsonElement msg){
+            if (context!=null) {
+
+                new Thread()
+                {
+                    public void run()
+                    {
+                        activity.runOnUiThread(new Runnable()
+                        {
+                            public void run()
+                            {
+                                //Do your UI operations like dialog opening or Toast here
+                                Toast.makeText(context,msg.toString()+"+++++",Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                }.start();
+
+
+            }
+
+        }
+
+    }
 
     public void subscribe(){
         try {
 
-            pubnub.addListener(new MySubscribeCallback(channelName, this.getApplicationContext(),this));
+            pubnub.addListener(new otherPNSubscribeCallback(channelName, this));
 
             pubnub.subscribe()
                     .channels(Arrays.asList(channelName))

@@ -1,4 +1,4 @@
-package com.pubnub.mypubnup;
+package com.pubnub.mylibrary;
 
 import android.app.Activity;
 import android.content.Context;
@@ -6,12 +6,9 @@ import android.os.Handler;
 import android.widget.Toast;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.pubnub.api.PubNub;
-import com.pubnub.api.callbacks.PNCallback;
 import com.pubnub.api.callbacks.SubscribeCallback;
 import com.pubnub.api.enums.PNStatusCategory;
-import com.pubnub.api.models.consumer.PNPublishResult;
 import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
@@ -20,20 +17,20 @@ import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
 import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
 import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
 
-public class MySubscribeCallback extends SubscribeCallback {
+public class PNSubscribeCallback extends SubscribeCallback {
 
     final String channelName;
     Context context;
     Activity activity;
 
-    public MySubscribeCallback(String name){
+    public PNSubscribeCallback(String name){
         channelName = name;
     }
 
-    public MySubscribeCallback(String name, Context context, Activity activity){
+    public PNSubscribeCallback(String name, Activity activity){
 
         this.channelName = name;
-        this.context = context;
+        this.context = activity.getApplicationContext();
         this.activity = activity;
     }
 
@@ -107,14 +104,16 @@ public class MySubscribeCallback extends SubscribeCallback {
         JsonElement msg = message.getMessage();
         System.out.println("MESSAGE: " + msg);
 
-
-
         String messagePublisher = message.getPublisher();
         System.out.println("Message publisher: " + messagePublisher);
         System.out.println("Message Payload: " + message.getMessage());
         System.out.println("Message Subscription: " + message.getSubscription());
         System.out.println("Message Channel: " + message.getChannel());
         System.out.println("Message timetoken: " + message.getTimetoken());
+
+        if (message.getUserMetadata()!=null) {
+            System.out.println("Message metadata: " + message.getUserMetadata().getAsString());
+        }
 
         //Toast..makeText(this, "Refresh", Toast.LENGTH_LONG).show();
 
